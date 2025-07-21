@@ -27,7 +27,7 @@ app.use(express.static(frontendpath));
 app.use('/api/v1', router);
 
 // Wildcard route for SPA
-app.get('*', (req, res) => {
+app.get('/{*any}', (req, res) => {
   res.sendFile('index.html', { root: frontendpath });
 });
 
