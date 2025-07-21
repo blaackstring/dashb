@@ -1,28 +1,37 @@
-import express from 'express'
-import dotenv from 'dotenv'
+import express from 'express';
+import dotenv from 'dotenv';
 import DbConnetion from './config/DbConnetion.js';
 import router from './routes/homeRoute.js';
-import path from 'path'
-    
-dotenv.config()
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+// Fix __dirname in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+dotenv.config();
 
-const frontendpath=path.join(__dirname,'../frontend/dist')
-const app=express();
- DbConnetion()
+const app = express();
+DbConnetion();
 
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+const frontendpath = path.join(__dirname, '../frontend/dist');
 
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/v1',router)
+// Serve static files
+app.use(express.static(frontendpath));
 
-const port =process.env.PORT || 4000
+// API routes
+app.use('/api/v1', router);
 
-app.get('*',(req,res)=>{
-    res.sendFile(frontendpath,'index.html')
-})
-app.listen(port,()=>{
-    console.log(`Server is running on ${port}`)
-})
+// Wildcard route for SPA
+app.get('*', (req, res) => {
+  res.sendFile('index.html', { root: frontendpath });
+});
+
+const port = process.env.PORT || 4000;
+app.listen(port, () => {
+  console.log(`Server is running on ${port}`);
+});
